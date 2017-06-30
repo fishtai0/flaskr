@@ -2,15 +2,29 @@
 from flask import Flask, render_template
 
 from flask_bootstrap import Bootstrap
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import Required
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '44617457d542163d10ada66726b31ef80a88ac1a41013ea5'
 bootstrap = Bootstrap(app)
 
 
-@app.route('/')
+class NameForm(FlaskForm):
+    name = StringField('What is your name?', validators=[Required()])
+    submit = SubmitField('Submit')
+
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template('index.html', form=form, name=name)
 
 
 @app.route('/user/<name>')
