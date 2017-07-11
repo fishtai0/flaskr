@@ -7,7 +7,7 @@ class Config(object):
     SECRET_KEY = (os.environ.get('SECRET_KEY') or
                   '44617457d542163d10ada66726b31ef80a88ac1a41013ea5')
 
-    PEEWEE_MODELS_MODULE = os.path.join(basedir, 'app/models.py')
+    PEEWEE_MODELS_MODULE = 'app.models'
 
     @classmethod
     def init_app(cls, app):
