@@ -1,0 +1,8 @@
+flask
+flask-bootstrap
+flask-wtf
+flask-moment
+flask-pw
+ipython
+matplotlib
+pip-tools
