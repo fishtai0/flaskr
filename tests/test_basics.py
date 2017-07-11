@@ -9,10 +9,10 @@ class BasicsTestCase(unittest.TestCase):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
-        # create all db tables
+        db.database.create_tables(db.models, safe=True)
 
     def tearDown(self):
-        # drop all db tables
+        db.database.drop_tables(db.models, safe=True)
         self.app_context.pop()
 
     def test_app_exists(self):
