@@ -5,6 +5,7 @@ from flask_login import UserMixin
 import peewee as pw
 
 from . import db
+from . import login_manager
 
 
 class Role(db.Model):
@@ -39,3 +40,8 @@ class User(UserMixin, db.Model):
 
     class Meta:
         db_table = 'users'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.select().where(User.id == int(user_id)).first()
