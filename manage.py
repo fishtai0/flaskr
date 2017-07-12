@@ -45,7 +45,16 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
-@app.cli.command('ipython', context_settings=dict(ignore_unknown_options=True),
+@app.shell_context_processor
+def make_shell_context():
+    pw_models = {mod.__name__: mod for mod in db.models}
+    return dict(db=db, **pw_models)
+# Equivalent to the following
+# app.shell_context_processors.append(make_shell_context)
+
+
+@app.cli.command('ipython',
+                 context_settings=dict(ignore_unknown_options=True),
                  short_help='Run a IPython shell in the app context.')
 @click.argument('ipython_args', nargs=-1, type=click.UNPROCESSED)
 def shell_command(ipython_args):
