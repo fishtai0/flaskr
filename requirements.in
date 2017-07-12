@@ -3,6 +3,7 @@ flask-bootstrap
 flask-wtf
 flask-moment
 flask-pw
+flask-login
 ipython
 matplotlib
 pip-tools

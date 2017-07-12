@@ -1,5 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask_login import UserMixin
+
 import peewee as pw
 
 from . import db
@@ -15,7 +17,8 @@ class Role(db.Model):
         db_table = 'roles'
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
+    email = pw.CharField(64, unique=True, index=True)
     username = pw.CharField(64, unique=True, index=True)
     role = pw.ForeignKeyField(Role, related_name='users', null=True)
     password_hash = pw.CharField(128)
