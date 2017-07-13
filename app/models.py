@@ -3,7 +3,7 @@ from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 
 import peewee as pw
 
@@ -11,8 +11,38 @@ from . import db
 from . import login_manager
 
 
+class Permission:
+    FOLLOW = 0x01
+    COMMENT = 0x02
+    WRITE_ARTICLES = 0x04
+    MODERATE_COMMENTS = 0x08
+    ADMINISTER = 0x80
+
+
 class Role(db.Model):
     name = pw.CharField(64, unique=True)
+    default = pw.BooleanField(default=False, index=True)
+    permissions = pw.IntegerField(null=True)
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.FOLLOW |
+                     Permission.COMMENT |
+                     Permission.WRITE_ARTICLES, True),
+            'Moderator': (Permission.FOLLOW |
+                          Permission.COMMENT |
+                          Permission.WRITE_ARTICLES |
+                          Permission.MODERATE_COMMENTS, False),
+            'Administrator': (0xff, False)
+        }
+        for r in roles:
+            role = Role.select().where(Role.name == r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            role.save()
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -27,6 +57,16 @@ class User(UserMixin, db.Model):
     role = pw.ForeignKeyField(Role, related_name='users', null=True)
     password_hash = pw.CharField(128)
     confirmed = pw.BooleanField(default=False)
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if self.role is None:
+            if self.email == current_app.config['FLASKR_ADMIN']:
+                self.role = (Role.select()
+                             .where(Role.permissions == 0xff)
+                             .first())
+            if self.role is None:
+                self.role = Role.select().where(Role.default == True).first()
 
     @property
     def password(self):
@@ -94,11 +134,26 @@ class User(UserMixin, db.Model):
         self.save()
         return True
 
+    def can(self, permissions):
+        return (self.role is not None and
+                (self.role.permissions & permissions) == permissions)
+
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
+
     def __repr__(self):
         return '<User %r>' % self.username
 
     class Meta:
         db_table = 'users'
+
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
 
 
 @login_manager.user_loader

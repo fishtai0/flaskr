@@ -47,8 +47,9 @@ def test():
 
 @app.shell_context_processor
 def make_shell_context():
+    from app.models import Permission
     pw_models = {mod.__name__: mod for mod in db.models}
-    return dict(db=db, **pw_models)
+    return dict(db=db, Permission=Permission, **pw_models)
 # Equivalent to the following
 # app.shell_context_processors.append(make_shell_context)
 
