@@ -2,6 +2,7 @@ flask
 flask-bootstrap
 flask-wtf
 flask-moment
+flask-mail
 flask-pw
 flask-login
 ipython
