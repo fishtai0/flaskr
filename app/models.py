@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import current_app
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -57,6 +59,11 @@ class User(UserMixin, db.Model):
     role = pw.ForeignKeyField(Role, related_name='users', null=True)
     password_hash = pw.CharField(128)
     confirmed = pw.BooleanField(default=False)
+    name = pw.CharField(64, null=True)
+    location = pw.CharField(64, null=True)
+    about_me = pw.TextField(null=True)
+    member_since = pw.DateTimeField(default=datetime.utcnow, null=True)
+    last_seen = pw.DateTimeField(default=datetime.utcnow, null=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -140,6 +147,10 @@ class User(UserMixin, db.Model):
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        self.save()
 
     def __repr__(self):
         return '<User %r>' % self.username
