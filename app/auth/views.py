@@ -1,11 +1,11 @@
 from flask import render_template, redirect, request, url_for, flash
 
-from flask_login import login_user, logout_user, login_required  # , current_user
+from flask_login import login_user, logout_user, login_required, current_user
 
 from . import auth
 from ..models import User
 # from ..email import send_email
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -44,6 +44,20 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.old_password.data):
+            current_user.password = form.password.data
+            current_user.save()
+            flash('Your password has been updated.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid password.')
+    return render_template("auth/change_password.html", form=form)
 
 # @auth.route('/confirm/<token>')
 # @login_required
