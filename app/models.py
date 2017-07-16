@@ -67,6 +67,7 @@ class User(UserMixin, db.Model):
     about_me = pw.TextField(null=True)
     member_since = pw.DateTimeField(default=datetime.utcnow, null=True)
     last_seen = pw.DateTimeField(default=datetime.utcnow, null=True)
+    avatar_hash = pw.CharField(32, null=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -77,6 +78,9 @@ class User(UserMixin, db.Model):
                              .first())
             if self.role is None:
                 self.role = Role.select().where(Role.default == True).first()
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = hashlib.md5(
+                self.email.lower().encode('utf-8')).hexdigest()
 
     @property
     def password(self):
@@ -141,6 +145,8 @@ class User(UserMixin, db.Model):
                 .first()) is not None:
             return False
         self.email = new_email
+        self.avatar_hash = hashlib.md5(
+            self.email.lower().encode('utf-8')).hexdigest()
         self.save()
         return True
 
@@ -161,7 +167,7 @@ class User(UserMixin, db.Model):
         else:
             url = 'http://www.gravatar.com/avatar'
 
-        hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        hash = self.avatar_hash or hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
         gravatar_url = '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
         return gravatar_url
