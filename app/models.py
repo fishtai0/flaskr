@@ -1,6 +1,7 @@
 from datetime import datetime
+import hashlib
 
-from flask import current_app
+from flask import current_app, request
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,9 +9,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 
 import peewee as pw
+import requests
 
 from . import db
 from . import login_manager
+from utils.identicon import IdenticonSVG
 
 
 class Permission:
@@ -151,6 +154,26 @@ class User(UserMixin, db.Model):
     def ping(self):
         self.last_seen = datetime.utcnow()
         self.save()
+
+    def gravatar(self, size=100, default='404', rating='g'):
+        if request.is_secure:
+            url = 'https://secure.gravatar.com/avatar'
+        else:
+            url = 'http://www.gravatar.com/avatar'
+
+        hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        gravatar_url = '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+            url=url, hash=hash, size=size, default=default, rating=rating)
+        return gravatar_url
+
+    def avatar(self, size=100, **kwargs):
+        gravatar_url = self.gravatar(size)
+        r = requests.get(gravatar_url)
+        if r.status_code == 404:
+            i = IdenticonSVG(hash, size=size, **kwargs)
+            gravatar_url = 'data:image/svg+xml;text,{0}'.format(i.to_string(True))
+
+        return gravatar_url
 
     def __repr__(self):
         return '<User %r>' % self.username

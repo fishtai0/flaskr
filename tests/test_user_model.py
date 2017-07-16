@@ -123,3 +123,20 @@ class UserModelTestCase(unittest.TestCase):
         last_seen_before = u.last_seen
         u.ping()
         self.assertTrue(u.last_seen > last_seen_before)
+
+    def test_gravatar(self):
+        u = User(email='rose@example.com', username='rose', password='cat')
+        with self.app.test_request_context('/'):
+            gravatar = u.gravatar()
+            gravatar_256 = u.gravatar(size=256)
+            gravatar_pg = u.gravatar(rating='pg')
+            gravatar_retro = u.gravatar(default='retro')
+        with self.app.test_request_context('/', base_url='https://example.com'):
+            gravatar_ssl = u.gravatar()
+        self.assertTrue('http://www.gravatar.com/avatar/' +
+                        '98e7f22b23916d305e611b87553d2bb5' in gravatar)
+        self.assertTrue('s=256' in gravatar_256)
+        self.assertTrue('r=pg' in gravatar_pg)
+        self.assertTrue('d=retro' in gravatar_retro)
+        self.assertTrue('https://secure.gravatar.com/avatar/' +
+                        '98e7f22b23916d305e611b87553d2bb5' in gravatar_ssl)
