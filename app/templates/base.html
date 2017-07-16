@@ -70,5 +70,5 @@
 
 {% block scripts %}
 	{{ super() }}
-    {{ moment.include_moment() }}
+    {{ moment.include_moment(local_js=url_for('static', filename='moment-with-locales.min.js')) }}
 {% endblock %}

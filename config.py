@@ -7,6 +7,9 @@ class Config(object):
     SECRET_KEY = (os.environ.get('SECRET_KEY') or
                   '44617457d542163d10ada66726b31ef80a88ac1a41013ea5')
 
+    # bootstrap
+    BOOTSTRAP_SERVE_LOCAL = True
+
     PEEWEE_MODELS_MODULE = 'app.models'
     FLASKR_ADMIN = os.environ.get('FLASKR_ENV') or 'fishtai0@outlook.com'
 
