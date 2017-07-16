@@ -70,6 +70,28 @@ class User(UserMixin, db.Model):
     last_seen = pw.DateTimeField(default=datetime.utcnow, null=True)
     avatar_hash = pw.CharField(32, null=True)
 
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed
+        import forgery_py
+
+        seed()
+        fake_data = []
+        for i in range(count):
+            fake_data.append(
+                dict(email=forgery_py.internet.email_address(),
+                     username=forgery_py.internet.user_name(True),
+                     password_hash=generate_password_hash(
+                         forgery_py.lorem_ipsum.word()),
+                     confirmed=True,
+                     name=forgery_py.name.full_name(),
+                     location=forgery_py.address.city(),
+                     about_me=forgery_py.lorem_ipsum.sentence(),
+                     member_since=forgery_py.date.date(True)))
+        for idx in range(0, len(fake_data), 10):
+            with db.database.atomic():
+                User.insert_many(fake_data[idx:idx+10]).execute()
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
@@ -212,6 +234,25 @@ class Post(db.Model):
     body = pw.TextField(null=True)
     timestamp = pw.DateTimeField(index=True, default=datetime.utcnow)
     author = pw.ForeignKeyField(User, related_name='posts', null=True)
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = User.select().count()
+        fake_data = []
+        for i in range(count):
+            u = User.select().offset(randint(0, user_count - 1)).first()
+            fake_data.append(
+                dict(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                     timestamp=forgery_py.date.date(True),
+                     author=u))
+        for idx in range(0, len(fake_data), 10):
+            with db.database.atomic():
+                Post.insert_many(fake_data[idx:idx+10]).execute()
+
 
     class Meta:
         db_table = 'posts'
