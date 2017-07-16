@@ -28,7 +28,8 @@ def index():
 def user(username):
     user_query = User.select()
     user = futils.get_object_or_404(user_query, (User.username == username))
-    return render_template('user.html', user=user)
+    posts = user.posts.order_by(Post.timestamp.desc())
+    return render_template('user.html', user=user, posts=posts)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
