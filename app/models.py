@@ -10,6 +10,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 
 import peewee as pw
 import requests
+from requests.exceptions import ConnectionError, HTTPError
 
 from . import db
 from . import login_manager
@@ -178,8 +179,10 @@ class User(UserMixin, db.Model):
 
     def avatar(self, size=100, **kwargs):
         gravatar_url = self.gravatar(size)
-        r = requests.get(gravatar_url)
-        if r.status_code == 404:
+        try:
+            r = requests.get(gravatar_url)
+            r.raise_for_status()
+        except (ConnectionError, HTTPError):
             i = IdenticonSVG(self.avatar_hash, size=size, **kwargs)
             gravatar_url = 'data:image/svg+xml;text,{0}'.format(i.to_string(True))
 
