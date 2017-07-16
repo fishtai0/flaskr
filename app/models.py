@@ -167,7 +167,11 @@ class User(UserMixin, db.Model):
         else:
             url = 'http://www.gravatar.com/avatar'
 
-        hash = self.avatar_hash or hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        if not self.avatar_hash:
+            self.avatar_hash = hashlib.md5(
+                self.email.lower().encode('utf-8')).hexdigest()
+            self.save()
+        hash = self.avatar_hash
         gravatar_url = '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
         return gravatar_url
@@ -176,7 +180,7 @@ class User(UserMixin, db.Model):
         gravatar_url = self.gravatar(size)
         r = requests.get(gravatar_url)
         if r.status_code == 404:
-            i = IdenticonSVG(hash, size=size, **kwargs)
+            i = IdenticonSVG(self.avatar_hash, size=size, **kwargs)
             gravatar_url = 'data:image/svg+xml;text,{0}'.format(i.to_string(True))
 
         return gravatar_url
