@@ -206,3 +206,12 @@ class AnonymousUser(AnonymousUserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return User.select().where(User.id == int(user_id)).first()
+
+
+class Post(db.Model):
+    body = pw.TextField(null=True)
+    timestamp = pw.DateTimeField(index=True, default=datetime.utcnow)
+    author = pw.ForeignKeyField(User, related_name='posts', null=True)
+
+    class Meta:
+        db_table = 'posts'
