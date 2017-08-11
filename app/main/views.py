@@ -1,4 +1,9 @@
-from flask import render_template, redirect, url_for, abort, flash
+from flask import (
+    render_template,
+    redirect, url_for, abort,
+    flash,
+    request, current_app
+)
 
 from flask_login import login_required, current_user
 
@@ -8,6 +13,8 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..models import Permission, Role, User, Post
 from ..decorators import admin_required
+
+from utils.paginate_peewee import Pagination
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -20,16 +27,25 @@ def index():
                     author=current_user._get_current_object())
         post.save()
         return redirect(url_for('.index'))
-    posts = Post.select().order_by(Post.timestamp.desc())
-    return render_template('index.html', form=form, posts=posts)
+
+    pagination = Pagination(Post.select().order_by(Post.timestamp.desc()),
+                            current_app.config['FLASKR_POSTS_PER_PAGE'],
+                            check_bounds=False)
+    posts = pagination.items
+    return render_template('index.html', form=form, posts=posts,
+                           pagination=pagination)
 
 
 @main.route('/user/<username>')
 def user(username):
     user_query = User.select()
     user = futils.get_object_or_404(user_query, (User.username == username))
-    posts = user.posts.order_by(Post.timestamp.desc())
-    return render_template('user.html', user=user, posts=posts)
+    pagination = Pagination(user.posts.order_by(Post.timestamp.desc()),
+                            current_app.config['FLASKR_POSTS_PER_PAGE'],
+                            check_bounds=False)
+    posts = pagination.items
+    return render_template('user.html', user=user, posts=posts,
+                           pagination=pagination)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
