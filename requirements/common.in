@@ -5,6 +5,7 @@ flask-moment
 flask-mail
 flask-pw
 flask-login
+flask-pagedown
 ipython
 matplotlib
 requests
