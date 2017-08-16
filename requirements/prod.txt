@@ -7,6 +7,7 @@
 --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 appnope==0.1.0            # via ipython
+bleach==2.0.0
 blinker==1.4              # via flask-mail
 cached-property==1.3.0    # via peewee-migrate
 certifi==2017.4.17        # via requests
@@ -24,12 +25,14 @@ flask-pagedown==0.2.2
 flask-pw==1.0.3
 flask-wtf==0.14.2
 flask==0.12.2
+html5lib==0.999999999     # via bleach
 idna==2.5                 # via requests
 ipython-genutils==0.2.0   # via traitlets
 ipython==6.1.0
 itsdangerous==0.24        # via flask
 jedi==0.10.2              # via ipython
 jinja2==2.9.6             # via flask
+markdown==2.6.8
 markupsafe==1.0           # via jinja2
 matplotlib==2.0.2
 mock==2.0.0               # via peewee-migrate
@@ -48,10 +51,11 @@ python-dateutil==2.6.1    # via matplotlib
 pytz==2017.2              # via matplotlib
 requests==2.18.1
 simplegeneric==0.8.1      # via ipython
-six==1.10.0               # via cycler, matplotlib, mock, pip-tools, prompt-toolkit, python-dateutil, traitlets
+six==1.10.0               # via bleach, cycler, html5lib, matplotlib, mock, pip-tools, prompt-toolkit, python-dateutil, traitlets
 traitlets==4.3.2          # via ipython
 urllib3==1.21.1           # via requests
 visitor==0.1.3            # via flask-bootstrap
 wcwidth==0.1.7            # via prompt-toolkit
+webencodings==0.5.1       # via html5lib
 werkzeug==0.12.2          # via flask
 wtforms==2.1              # via flask-pagedown, flask-wtf

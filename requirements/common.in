@@ -6,6 +6,8 @@ flask-mail
 flask-pw
 flask-login
 flask-pagedown
+markdown
+bleach
 ipython
 matplotlib
 requests

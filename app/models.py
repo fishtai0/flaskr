@@ -6,6 +6,9 @@ from flask import current_app, request
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from markdown import markdown
+import bleach
+
 from flask_login import UserMixin, AnonymousUserMixin
 
 import peewee as pw
@@ -14,7 +17,17 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from . import db
 from . import login_manager
+from .decorators import require_instance
 from utils.identicon import IdenticonSVG
+
+
+@require_instance
+def refresh(self):
+    """Reload object from database."""
+    return type(self).get(self._pk_expr())
+
+
+db.Model.refresh = refresh
 
 
 class Permission:
@@ -232,6 +245,7 @@ def load_user(user_id):
 
 class Post(db.Model):
     body = pw.TextField(null=True)
+    body_html = pw.TextField(null=True)
     timestamp = pw.DateTimeField(index=True, default=datetime.utcnow)
     author = pw.ForeignKeyField(User, related_name='posts', null=True)
 
@@ -253,6 +267,14 @@ class Post(db.Model):
             with db.database.atomic():
                 Post.insert_many(fake_data[idx:idx+10]).execute()
 
+    @require_instance
+    def update_body_html(self):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        self.__class__.update(body_html=bleach.linkify(bleach.clean(
+            markdown(self.body, output_format='html'),
+            tags=allowed_tags, strip=True))).where(self._pk_expr()).execute()
 
     class Meta:
         db_table = 'posts'

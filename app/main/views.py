@@ -26,6 +26,7 @@ def index():
         post = Post(body=form.body.data,
                     author=current_user._get_current_object())
         post.save()
+        post.update_body_html()
         return redirect(url_for('.index'))
 
     pagination = Pagination(Post.select().order_by(Post.timestamp.desc()),
