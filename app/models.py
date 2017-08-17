@@ -238,6 +238,9 @@ class AnonymousUser(AnonymousUserMixin):
         return False
 
 
+login_manager.anonymous_user = AnonymousUser
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.select().where(User.id == int(user_id)).first()
