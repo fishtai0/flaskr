@@ -16,6 +16,9 @@
                         {{ post.body }}
                     {% endif %}
                 </div>
+                <div class="post-footer">
+                    <a class="label label-info" href="{{ url_for('.post', id=post.id) }}">Permalink</a>
+                </div>
             </div>
         </li>
     {% endfor %}

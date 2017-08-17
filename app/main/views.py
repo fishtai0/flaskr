@@ -92,3 +92,10 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
+
+
+@main.route('/post/<int:id>')
+def post(id):
+    post_query = Post.select()
+    post = futils.get_object_or_404(post_query, (Post.id == id))
+    return render_template('post.html', posts=[post])
