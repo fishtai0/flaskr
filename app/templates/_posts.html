@@ -17,6 +17,11 @@
                     {% endif %}
                 </div>
                 <div class="post-footer">
+                    {% if current_user == post.author %}
+                        <a class="label label-warning" href="{{ url_for('.edit', id=post.id) }}">Edit</a>
+                    {% elif current_user.is_administrator() %}
+                        <a class="label label-danger" href="{{ url_for('.edit', id=post.id) }}">Edit [Admin]</a>
+                    {% endif %}
                     <a class="label label-info" href="{{ url_for('.post', id=post.id) }}">Permalink</a>
                 </div>
             </div>

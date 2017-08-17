@@ -99,3 +99,22 @@ def post(id):
     post_query = Post.select()
     post = futils.get_object_or_404(post_query, (Post.id == id))
     return render_template('post.html', posts=[post])
+
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    post_query = Post.select()
+    post = futils.get_object_or_404(post_query, (Post.id == id))
+    if current_user != post.author and \
+       not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        post.save()
+        post.update_body_html()
+        flash('The post has been updated.')
+        return redirect(url_for('.post', id=post.id))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)
