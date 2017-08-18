@@ -1,3 +1,7 @@
+import math
+
+from werkzeug.utils import cached_property
+
 from flask import request, abort
 from playhouse.flask_utils import PaginatedQuery
 
@@ -16,7 +20,7 @@ class Pagination(PaginatedQuery):
         super(Pagination, self).__init__(query_or_model, per_page, **kwargs)
         self._page = page
 
-    @property
+    @cached_property
     def total(self):
         """Total number of items matching the query."""
         return self.query.count()
@@ -25,6 +29,19 @@ class Pagination(PaginatedQuery):
     def items(self):
         """Items for the current page."""
         return self.get_object_list()
+
+    @cached_property
+    def get_page(self):
+        return super(self.__class__, self).get_page()
+
+    @cached_property
+    def get_page_count(self):
+        return int(math.ceil(float(self.total) / self.paginate_by))
+
+    def get_object_list(self):
+        if self.check_bounds and self.get_page > self.get_page_count:
+            abort(404)
+        return self.query.paginate(self.get_page, self.paginate_by)
 
     @property
     def page(self):
@@ -45,7 +62,7 @@ class Pagination(PaginatedQuery):
         if self.paginate_by == 0:
             pages = 0
         else:
-            pages = self.get_page_count()
+            pages = self.get_page_count
         return pages
 
     def prev(self, check_bounds=False):
