@@ -107,6 +107,12 @@ class User(UserMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
+        self._role()
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = hashlib.md5(
+                self.email.lower().encode('utf-8')).hexdigest()
+
+    def _role(self):
         if self.role is None:
             if self.email == current_app.config['FLASKR_ADMIN']:
                 self.role = (Role.select()
@@ -114,9 +120,6 @@ class User(UserMixin, db.Model):
                              .first())
             if self.role is None:
                 self.role = Role.select().where(Role.default == True).first()
-        if self.email is not None and self.avatar_hash is None:
-            self.avatar_hash = hashlib.md5(
-                self.email.lower().encode('utf-8')).hexdigest()
 
     @property
     def password(self):
