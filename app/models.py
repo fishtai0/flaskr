@@ -274,6 +274,20 @@ class Follow(db.Model):
                                   on_delete='CASCADE')
     timestamp = pw.DateTimeField(default=datetime.utcnow)
 
+    @classmethod
+    def followers_of(cls, user):
+        """Followers of user."""
+        return (cls.select(cls, User)
+                .join(User, on=cls.follower)
+                .where(cls.followed == user))
+
+    @classmethod
+    def followed_by(cls, user):
+        """Followed by user."""
+        return (cls.select(cls, User)
+                .join(User, on=cls.followed)
+                .where(Follow.follower == user))
+
     class Meta:
         db_table = 'follows'
         indexes = (

@@ -19,6 +19,8 @@ class Config(object):
         'pragmas': [('foreign_keys', 'on')]
     }
 
+    FLASKR_FOLLOWERS_PER_PAGE = 50
+
     @classmethod
     def init_app(cls, app):
         pass
