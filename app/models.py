@@ -223,6 +223,24 @@ class User(UserMixin, db.Model):
 
         return gravatar_url
 
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower=self, followed=user)
+            f.save()
+
+    def unfollow(self, user):
+        f = self.followed.where(Follow.followed == user.id).first()
+        if f:
+            f.delete_instance()
+
+    def is_following(self, user):
+        return self.followed.where(
+            Follow.followed == user.id).first() is not None
+
+    def is_followed_by(self, user):
+        return self.followers.where(
+            Follow.follower == user.id).first() is not None
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -244,6 +262,20 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.select().where(User.id == int(user_id)).first()
+
+
+class Follow(db.Model):
+    follower = pw.ForeignKeyField(User, related_name='followed',
+                                  on_delete='CASCADE')
+    followed = pw.ForeignKeyField(User, related_name='followers',
+                                  on_delete='CASCADE')
+    timestamp = pw.DateTimeField(default=datetime.utcnow)
+
+    class Meta:
+        db_table = 'follows'
+        indexes = (
+            (('follower', 'followed'), True),
+        )
 
 
 class Post(db.Model):

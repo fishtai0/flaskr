@@ -15,6 +15,10 @@ class Config(object):
 
     FLASKR_POSTS_PER_PAGE = 15
 
+    PEEWEE_CONNECTION_PARAMS = {
+        'pragmas': [('foreign_keys', 'on')]
+    }
+
     @classmethod
     def init_app(cls, app):
         pass

@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 from app import create_app, db
-from app.models import User, AnonymousUser, Role, Permission
+from app.models import User, AnonymousUser, Role, Permission, Follow
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -140,3 +140,31 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue('d=retro' in gravatar_retro)
         self.assertTrue('https://secure.gravatar.com/avatar/' +
                         '98e7f22b23916d305e611b87553d2bb5' in gravatar_ssl)
+
+    def test_followers(self):
+        u1 = User(email='lisa@example.com', username='lisa', password='cat')
+        u2 = User(email='dav@example.com', username='dav', password='dog')
+        u1.save()
+        u2.save()
+        self.assertFalse(u1.is_following(u2))
+        self.assertFalse(u1.is_followed_by(u2))
+        timestamp_before = datetime.utcnow()
+        u1.follow(u2)
+        timestamp_after = datetime.utcnow()
+        self.assertTrue(u1.is_following(u2))
+        self.assertFalse(u1.is_followed_by(u2))
+        self.assertTrue(u2.is_followed_by(u1))
+        self.assertTrue(u1.followed.count() == 1)
+        self.assertTrue(u2.followers.count() == 1)
+        f = u1.followed[-1]
+        self.assertTrue(f.followed == u2)
+        self.assertTrue(timestamp_before <= f.timestamp <= timestamp_after)
+        f = u2.followers[-1]
+        self.assertTrue(f.follower == u1)
+        u1.unfollow(u2)
+        self.assertTrue(u1.followed.count() == 0)
+        self.assertTrue(u2.followers.count() == 0)
+        self.assertTrue(Follow.select().count() == 0)
+        u2.follow(u1)
+        u2.delete_instance()
+        self.assertTrue(Follow.select().count() == 0)
