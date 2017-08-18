@@ -29,7 +29,7 @@ def index():
         post.update_body_html()
         return redirect(url_for('.index'))
 
-    pagination = Pagination(Post.select().order_by(Post.timestamp.desc()),
+    pagination = Pagination(Post.timeline(),
                             current_app.config['FLASKR_POSTS_PER_PAGE'],
                             check_bounds=False)
     posts = pagination.items
