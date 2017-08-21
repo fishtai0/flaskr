@@ -358,5 +358,36 @@ class Post(db.Model):
                 .join(User, on=cls.author)
                 .order_by(order))
 
+    def comments_timeline(self, order='asc'):
+        if order == 'asc':
+            order = Comment.timestamp.asc()
+        else:
+            order = Comment.timestamp.desc()
+
+        return (Comment.select(Comment, User)
+                .join(User, on=(Comment.author == User.id))
+                .where(Comment.post == self.id)
+                .order_by(order))
+
     class Meta:
         db_table = 'posts'
+
+
+class Comment(db.Model):
+    body = pw.TextField(null=True)
+    body_html = pw.TextField(null=True)
+    timestamp = pw.DateTimeField(index=True, default=datetime.utcnow)
+    disabled = pw.BooleanField(null=True, default=False)
+    author = pw.ForeignKeyField(User, related_name='comments', null=True)
+    post = pw.ForeignKeyField(Post, related_name='comments', null=True)
+
+    @require_instance
+    def update_body_html(self):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'strong']
+        self.__class__.update(body_html=bleach.linkify(bleach.clean(
+            markdown(self.body, output_format='html'),
+            tags=allowed_tags, strip=True))).where(self._pk_expr()).execute()
+
+    class Meta:
+        db_table = 'comments'

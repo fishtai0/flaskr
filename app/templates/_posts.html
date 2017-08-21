@@ -23,6 +23,9 @@
                         <a class="label label-danger" href="{{ url_for('.edit', id=post.id) }}">Edit [Admin]</a>
                     {% endif %}
                     <a class="label label-info" href="{{ url_for('.post', id=post.id) }}">Permalink</a>
+                    <a href="{{ url_for('.post', id=post.id) }}#comments">
+                        <span class="label label-primary">{{ post.comments.count() }} Comments</span>
+                    </a>
                 </div>
             </div>
         </li>

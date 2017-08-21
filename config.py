@@ -20,6 +20,7 @@ class Config(object):
     }
 
     FLASKR_FOLLOWERS_PER_PAGE = 50
+    FLASKR_COMMENTS_PER_PAGE = 30
 
     @classmethod
     def init_app(cls, app):
