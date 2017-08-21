@@ -36,10 +36,10 @@
                 {% endif %}
 
                 <a class="btn btn-info btn-sm" href="{{ url_for('.followers', username=user.username) }}">
-                    Followers <span class="badge">{{ user.followers.count() }}</span>
+                    Followers <span class="badge">{{ user.followers.count() - 1 }}</span>
                 </a>
                 <a class="btn btn-warning btn-sm" href="{{ url_for('.followed_by', username=user.username) }}">
-                    Following <span class="badge">{{ user.followed.count() }}</span>
+                    Following <span class="badge">{{ user.followed.count() - 1 }}</span>
                 </a>
                 {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
                     | <span class="label label-success">Follows you</span>

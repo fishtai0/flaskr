@@ -105,6 +105,12 @@ class User(UserMixin, db.Model):
             with db.database.atomic():
                 User.insert_many(fake_data[idx:idx+10]).execute()
 
+    @staticmethod
+    def add_self_follows():
+        for user in User.select():
+            if not user.is_following(user):
+                user.follow(user)
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         self._role()
@@ -120,6 +126,11 @@ class User(UserMixin, db.Model):
                              .first())
             if self.role is None:
                 self.role = Role.select().where(Role.default == True).first()
+
+    def save(self, *args, **kwargs):
+        super(self.__class__, self).save(*args, **kwargs)
+        if not self.is_following(self):
+            self.follow(self)
 
     @property
     def password(self):
@@ -226,6 +237,7 @@ class User(UserMixin, db.Model):
 
         return gravatar_url
 
+    @require_instance
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
