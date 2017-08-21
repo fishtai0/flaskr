@@ -244,6 +244,13 @@ class User(UserMixin, db.Model):
         return self.followers.where(
             Follow.follower == user.id).first() is not None
 
+    @property
+    def followed_posts(self):
+        return (Post.select(Post, self.__class__)
+                .join(Follow, on=(Post.author == Follow.followed))
+                .join(self.__class__, on=(Post.author == self.__class__.id))
+                .where(Follow.follower == self))
+
     def __repr__(self):
         return '<User %r>' % self.username
 
