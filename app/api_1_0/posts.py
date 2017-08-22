@@ -48,7 +48,7 @@ def new_post():
         {'Location': url_for('api.get_post', id=post.id, _external=True)}
 
 
-@api.route('/posts/<int:id>', methods=['GET', 'POST'])
+@api.route('/posts/<int:id>', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_post(id):
     post = futils.get_object_or_404(Post.select(), (Post.id == id))
