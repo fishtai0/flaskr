@@ -235,3 +235,40 @@ def show_followed():
     resp = make_response(redirect(url_for('.index')))
     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return resp
+
+
+@main.route('/moderate')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate():
+    pagination = Pagination(
+        Comment.timeline(),
+        current_app.config['FLASKR_COMMENTS_PER_PAGE'],
+        check_bounds=False)
+    comments = pagination.items
+    return render_template('moderate.html', comments=comments,
+                           pagination=pagination, page=pagination.page)
+
+
+@main.route('/moderate/enable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_enable(id):
+    comment = futils.get_object_or_404(Comment.select(),
+                                       (Comment.id == id))
+    comment.disabled = False
+    comment.save()
+    return redirect(url_for('.moderate',
+                            page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/moderate/disable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def moderate_disable(id):
+    comment = futils.get_object_or_404(Comment.select(),
+                                       (Comment.id == id))
+    comment.disabled = True
+    comment.save()
+    return redirect(url_for('.moderate',
+                            page=request.args.get('page', 1, type=int)))

@@ -389,5 +389,16 @@ class Comment(db.Model):
             markdown(self.body, output_format='html'),
             tags=allowed_tags, strip=True))).where(self._pk_expr()).execute()
 
+    @classmethod
+    def timeline(cls, order='desc'):
+        if order == 'desc':
+            order = cls.timestamp.desc()
+        else:
+            order = cls.timestamp.asc()
+
+        return (cls.select(cls, User)
+                .join(User, on=cls.author)
+                .order_by(order))
+
     class Meta:
         db_table = 'comments'
