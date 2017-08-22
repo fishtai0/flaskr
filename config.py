@@ -7,8 +7,6 @@ class Config(object):
     SECRET_KEY = (os.environ.get('SECRET_KEY') or
                   '44617457d542163d10ada66726b31ef80a88ac1a41013ea5')
 
-    SERVER_NAME = '127.0.0.1:5000'
-
     # bootstrap
     BOOTSTRAP_SERVE_LOCAL = True
 
@@ -35,10 +33,13 @@ class DevelopmentConfig(Config):
         os.environ.get('DEV_DATABASE_URL') or
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
     )
+    SERVER_NAME = 'localhost:5000'
 
 
 class TestingConfig(Config):
     TESTING = True
+    DEBUG = False
+    SERVER_NAME = 'localhost:5000'
     PEEWEE_DATABASE_URI = (
         os.environ.get('DEV_DATABASE_URL') or
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
