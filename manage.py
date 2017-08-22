@@ -8,6 +8,12 @@ import click
 
 from app import create_app, db
 
+cov = None
+if os.environ.get('FLASK_COVERAGE'):
+    import coverage
+    cov = coverage.Coverage(branch=True, include='app/*')
+    cov.start()
+
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
@@ -38,11 +44,27 @@ def create_tables(models, safe):
 
 
 @app.cli.command()
-def test():
+@click.option('--coverage', default=False, is_flag=True,
+              help=('Run the coverage test.'))
+def test(coverage):
     """Run the unit tests."""
+    if coverage and not os.environ.get('FLASK_COVERAGE'):
+        import sys
+        os.environ['FLASK_COVERAGE'] = '1'
+        os.execvp(sys.executable, [sys.executable] + sys.argv)
     import unittest
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
+    if cov:
+        cov.stop()
+        cov.save()
+        print('Coverage Summary:')
+        cov.report()
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        covdir = os.path.join(basedir, 'tmp/coverage')
+        cov.html_report(directory=covdir)
+        print('HTML version: file://%s/index.html' % covdir)
+        cov.erase()
 
 
 @app.shell_context_processor
