@@ -18,6 +18,7 @@ decorator==4.1.1          # via ipython, traitlets
 dominate==2.3.1           # via flask-bootstrap
 first==2.0.1              # via pip-tools
 flask-bootstrap==3.3.7.1
+flask-httpauth==3.2.3
 flask-login==0.4.0
 flask-mail==0.9.1
 flask-moment==0.5.1

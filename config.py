@@ -7,6 +7,8 @@ class Config(object):
     SECRET_KEY = (os.environ.get('SECRET_KEY') or
                   '44617457d542163d10ada66726b31ef80a88ac1a41013ea5')
 
+    SERVER_NAME = '127.0.0.1:5000'
+
     # bootstrap
     BOOTSTRAP_SERVE_LOCAL = True
 

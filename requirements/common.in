@@ -6,6 +6,7 @@ flask-mail
 flask-pw
 flask-login
 flask-pagedown
+flask-httpauth
 markdown
 bleach
 ipython
