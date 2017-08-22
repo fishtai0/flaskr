@@ -43,6 +43,8 @@ class TestingConfig(Config):
         os.environ.get('DEV_DATABASE_URL') or
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
     )
+    WTF_CSRF_ENABLED = False
+    PEEWEE_MANUAL = True
 
 
 class ProductionConfig(Config):
