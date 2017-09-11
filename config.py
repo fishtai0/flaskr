@@ -11,7 +11,7 @@ class Config(object):
     BOOTSTRAP_SERVE_LOCAL = True
 
     PEEWEE_MODELS_MODULE = 'app.models'
-    FLASKR_ADMIN = os.environ.get('FLASKR_ENV') or 'fishtai0@outlook.com'
+    FLASKR_ADMIN = os.environ.get('FLASKR_ENV') or 'flaskr@example.com'
 
     FLASKR_POSTS_PER_PAGE = 15
 
