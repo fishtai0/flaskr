@@ -32,7 +32,7 @@ def get_posts():
 
 @api.route('/posts/<int:id>')
 def get_post(id):
-    post = Post.select().where(Post.id == id).first()
+    post = futils.get_object_or_404(Post.select(), (Post.id == id))
     return jsonify(post.to_json())
 
 
