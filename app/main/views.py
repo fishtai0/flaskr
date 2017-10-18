@@ -101,7 +101,7 @@ def edit_profile_admin(id):
         user.email = form.email.data
         user.username = form.username.data
         user.confirmed = form.confirmed.data
-        user.role = Role.select.where(Role.id == form.role.data).first()
+        user.role = Role.select().where(Role.id == form.role.data).first()
         user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
