@@ -63,7 +63,7 @@ def get_post_comments(id):
 @permission_required(Permission.COMMENT)
 def new_post_comment(id):
     post = futils.get_object_or_404(Post.select(), (Post.id == id))
-    comment = Comment.from_json(request.json)
+    comment = Comment.from_json(request.get_json())
     comment.author = g.current_user
     comment.post = post
     comment.save()

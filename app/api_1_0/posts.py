@@ -39,7 +39,7 @@ def get_post(id):
 @api.route('/posts/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_post():
-    post = Post.from_json(request.json)
+    post = Post.from_json(request.get_json())
     post.author = g.current_user
     post.save()
     post.update_body_html()
@@ -55,7 +55,7 @@ def edit_post(id):
     if g.current_user != post.author and \
        not g.current_user.can(Permission.ADMINISTER):
         return forbidden('Insufficient permissions')
-    post.body = request.json.get('body', post.body)
+    post.body = request.get_json().get('body', post.body)
     post.save()
     post.update_body_html()
     post = post.refresh()
